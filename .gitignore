@@ -1,0 +1,10 @@
+# Ignore all logfiles and tempfiles.
+/log/*.log
+/tmp
+
+# Vim temp files
+*.swp
+*.swo
+
+# Ignore backup files
+*~
