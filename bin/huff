@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
 
 require 'huff'
-puts 'compressing....'
+
+Huff.huff(ARGV.first)
