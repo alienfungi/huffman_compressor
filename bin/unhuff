@@ -1,0 +1,5 @@
+#!/usr/bin/env ruby
+
+require 'unhuff'
+
+Unhuff.unhuff(ARGV.first)

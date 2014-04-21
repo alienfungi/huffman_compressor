@@ -11,4 +11,5 @@
 
 # Ignore data files
 *.huff
+*.unhuff
 *.txt

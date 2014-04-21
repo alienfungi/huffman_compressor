@@ -11,13 +11,9 @@ class Huff
 
   def self.huff(name)
     compressor = Huff.new(name)
-    compressed_file = compressor.compress
+    compressor.compress
   rescue Errno::ENOENT => e
     puts 'File not found.'
-  end
-
-  def self.unhuff(compressed)
-    puts 'decompressing....'
   end
 
   def compress
@@ -49,7 +45,9 @@ class Huff
   end
 
   def write_to_file(binary_string)
-    part_3 = [binary_string].pack('B*')
+    padding = 15 - binary_string.length % 8
+    padding = '0' * padding + '1'
+    part_3 = [padding + binary_string].pack('B*')
     part_2 = binary_compression_hash
     part_1 = [part_2.length].pack('I')
     File.open('output.huff', 'wb') do |output|
@@ -58,8 +56,4 @@ class Huff
       output.write part_3
     end
   end
-
-  #def read_from_file
-  #  File.open('output.huff', 'rb') {|io| io.read}
-  #end
 end
