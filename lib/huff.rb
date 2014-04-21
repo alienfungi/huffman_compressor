@@ -1,6 +1,5 @@
 require 'huff/node'
 require 'huff/priority_queue'
-require 'huff/tree'
 
 class Huff
   def initialize(name)
@@ -26,10 +25,28 @@ class Huff
 
   private
 
-  def build_compression_hash
+   def binary_compression_hash
+    @compression_hash.map { |key, value| "#{key}#{value}" }.join('&#')
+  end
+
+ def build_compression_hash
     char_count_hash = count_chars(@text)
     char_priority_queue = PriorityQueue.new(char_count_hash)
-    Tree.new(char_priority_queue).compression_hash
+    root = build_tree(char_priority_queue)
+    map_bit_values({}, root, '')
+  end
+
+  def build_tree(priority_queue)
+    while(!priority_queue.empty?) do
+      temp_1 = priority_queue.pop
+      if(priority_queue.empty?)
+        return temp_1
+      else
+        temp_2 = priority_queue.pop
+        temp_3 = Node.new(nil, temp_1.frequency + temp_2.frequency, temp_1, temp_2)
+        priority_queue.insert(temp_3)
+      end
+    end
   end
 
   def count_chars(text)
@@ -40,8 +57,16 @@ class Huff
     char_count_hash
   end
 
-  def binary_compression_hash
-    @compression_hash.map { |key, value| "#{key}#{value}" }.join('&#')
+  def map_bit_values(hash, current, bit_string)
+    if(current.left != nil)
+      map_bit_values(hash, current.left, bit_string + '0')
+    elsif(current.right == nil)
+      hash[current.char] = bit_string
+    end
+    if(current.right != nil)
+      map_bit_values(hash, current.right, bit_string + '1')
+    end
+    hash
   end
 
   def write_to_file(binary_string)

@@ -1,5 +1,4 @@
 require 'huff/node'
-require 'huff/tree'
 
 class Unhuff
   def initialize(name)
@@ -7,7 +6,7 @@ class Unhuff
     data = File.open(@name, 'rb') {|io| io.read}
 
     hash_size = data.byteslice(0, 4).unpack('I').first
-    @tree = Tree.new(compression_hash(data.byteslice(4, hash_size)))
+    @root = build_tree(compression_hash(data.byteslice(4, hash_size)))
 
     data_start = 4 + hash_size
     data_size = data.length - data_start
@@ -24,12 +23,12 @@ class Unhuff
 
   def decompress
     puts 'decompressing....'
-    current = @tree.root
+    current = @root
     decompressed = []
     @data.each_char do |bit|
       if(current.left.nil? && current.right.nil?)
         decompressed.push(current.char)
-        current = @tree.root
+        current = @root
       end
       current = bit == '0' ? current.left : current.right
     end
@@ -37,6 +36,23 @@ class Unhuff
   end
 
   private
+
+  def build_tree(hash)
+    root = Node.new(nil, nil)
+    hash.each do |char, bit_string|
+      current = root
+      bit_string.each_char do |bit|
+        if(bit == '0')
+          current.left ||= Node.new(char, nil)
+          current = current.left
+        else
+          current.right ||= Node.new(char, nil)
+          current = current.right
+        end
+      end
+    end
+    root
+  end
 
   def compression_hash(text_compression_hash)
     text_compression_hash.split('&#').each_with_object({}) do |string, hash|
