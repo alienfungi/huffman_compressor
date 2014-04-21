@@ -22,11 +22,10 @@ class Huff
 
   def compress
     puts 'compressing....'
-    puts @text
     compressed_text = @text.split('').map do |c|
       @compression_hash[c]
     end.join('')
-    puts compressed_text
+    write_to_file(compressed_text)
   end
 
   private
@@ -45,9 +44,22 @@ class Huff
     char_count_hash
   end
 
-  def print_hash(h)
-    h.each do |key, value|
-      puts "#{key}: #{value}"
+  def binary_compression_hash
+    @compression_hash.map { |key, value| "#{key}#{value}" }.join('&#')
+  end
+
+  def write_to_file(binary_string)
+    part_3 = [binary_string].pack('B*')
+    part_2 = binary_compression_hash
+    part_1 = [part_2.length].pack('I')
+    File.open('output.huff', 'wb') do |output|
+      output.write part_1
+      output.write part_2
+      output.write part_3
     end
   end
+
+  #def read_from_file
+  #  File.open('output.huff', 'rb') {|io| io.read}
+  #end
 end

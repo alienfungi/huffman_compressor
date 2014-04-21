@@ -8,3 +8,7 @@
 
 # Ignore backup files
 *~
+
+# Ignore data files
+*.huff
+*.txt
